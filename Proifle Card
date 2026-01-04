@@ -4,6 +4,7 @@ local player = game.Players.LocalPlayer
 -- Services
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 -- ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -107,6 +108,28 @@ RunService.RenderStepped:Connect(function()
     local m = math.floor((elapsed % 3600) / 60)
     local s = math.floor(elapsed % 60)
     timer.Text = string.format("%dh:%dm:%ds", h, m, s)
+end)
+
+-- ===== INSERT KEY TOGGLE ANIMATION =====
+local hudVisible = true
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Insert then
+        hudVisible = not hudVisible
+        if hudVisible then
+            -- Tween in
+            TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 10, 0, 10),
+                BackgroundTransparency = 0
+            }):Play()
+        else
+            -- Tween out (slide down)
+            TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Position = UDim2.new(0, 10, 0, 150),
+                BackgroundTransparency = 0.5
+            }):Play()
+        end
+    end
 end)
 
 -- Delete GUI on pressing 0
