@@ -1,0 +1,274 @@
+-- oxai_client.lua
+-- GUI Library for Roblox
+
+local GUI = {}
+
+-- ===== SERVICES =====
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ===== CREATE MAIN SCREENGUI =====
+local screenGui = playerGui:FindFirstChild("oxai_client_gui")
+if not screenGui then
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "oxai_client_gui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = playerGui
+end
+
+-- ===== CLEAR OLD CONTENT =====
+for _, child in ipairs(screenGui:GetChildren()) do
+    child:Destroy()
+end
+
+-- ===== MAIN FRAME =====
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 750, 0, 400)
+frame.Position = UDim2.new(0.5, -375, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 0
+frame.Visible = true
+frame.Parent = screenGui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 12)
+frameCorner.Parent = frame
+
+-- ===== TITLE =====
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -20, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.BackgroundTransparency = 1
+title.Text = "oxai client <3"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 20
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+-- ===== TOP LINE =====
+local topLine = Instance.new("Frame")
+topLine.Size = UDim2.new(1, 0, 0, 2)
+topLine.Position = UDim2.new(0, 0, 0, 40)
+topLine.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+topLine.BorderSizePixel = 0
+topLine.Parent = frame
+
+-- ===== STORAGE =====
+GUI.Tabs = {}
+GUI.ActiveTabs = {}
+GUI.SideButtons = {}
+GUI.ModuleButtons = {}
+local toggleColor = Color3.fromRGB(39, 212, 245)
+local draggingSlider = false
+
+-- ===== DRAGGING MENU =====
+local dragging = false
+local dragStart, startPos
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and not draggingSlider then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and not draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- ===== MENU TOGGLE =====
+local menuVisible = true
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Insert then
+        menuVisible = not menuVisible
+        if menuVisible then
+            TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0.5, -375, 0.5, -200),
+                BackgroundTransparency = 0
+            }):Play()
+        else
+            TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Position = UDim2.new(0.5, -375, 1, 50),
+                BackgroundTransparency = 0.5
+            }):Play()
+        end
+    end
+end)
+
+-- ===== FUNCTIONS =====
+
+-- Add a new tab
+function GUI:AddTab(name)
+    local tab = Instance.new("Frame")
+    tab.Size = UDim2.new(0, 0, 0, 0)
+    tab.Position = UDim2.new(0, 200, 0, 50)
+    tab.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    tab.Visible = false
+    tab.Parent = frame
+    self.Tabs[name] = tab
+    return tab
+end
+
+-- Add a side button to toggle tabs
+function GUI:AddSideButton(name, tab)
+    local posY = 45
+    if #self.SideButtons > 0 then
+        local lastButton = self.SideButtons[#self.SideButtons]
+        posY = lastButton.Position.Y.Offset + 50 + 10
+    end
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 180, 0, 50)
+    button.Position = UDim2.new(0, 15, 0, posY)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    button.BorderSizePixel = 0
+    button.Text = name
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 16
+    button.Font = Enum.Font.GothamSemibold
+    button.Parent = frame
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+
+    if tab then
+        tab.Visible = false
+        table.insert(self.ActiveTabs, {tab = tab, button = button})
+        button.MouseButton1Click:Connect(function()
+            for _, data in ipairs(self.ActiveTabs) do
+                data.tab.Visible = false
+                data.button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            end
+            tab.Visible = true
+            button.BackgroundColor3 = toggleColor
+        end)
+    end
+
+    table.insert(self.SideButtons, button)
+    return button
+end
+
+-- Add a button or slider to a tab
+function GUI:AddButton(tab, name, funcOn, funcOff, isSlider)
+    if not self.ModuleButtons[tab] then
+        self.ModuleButtons[tab] = {}
+    end
+    local buttons = self.ModuleButtons[tab]
+    local index = #buttons + 1
+    local row = math.floor((index - 1) / 3)
+    local col = (index - 1) % 3
+
+    local module = Instance.new("Frame")
+    module.Size = UDim2.new(0, 180, 0, 80)
+    module.Position = UDim2.new(0, 10 + col * (180 + 10), 0, 10 + row * (80 + 10))
+    module.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    module.BorderSizePixel = 0
+    module.Parent = tab
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = module
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 0, 25)
+    label.Position = UDim2.new(0, 5, 0, 5)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 16
+    label.Font = Enum.Font.GothamSemibold
+    label.Parent = module
+
+    if isSlider then
+        -- Slider logic
+        local sliderBar = Instance.new("Frame")
+        sliderBar.Size = UDim2.new(1, -40, 0, 6)
+        sliderBar.Position = UDim2.new(0, 10, 0, 50)
+        sliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        sliderBar.Parent = module
+
+        local knob = Instance.new("Frame")
+        knob.Size = UDim2.new(0, 14, 0, 14)
+        knob.Position = UDim2.new(0, 0, 0.5, -7)
+        knob.BackgroundColor3 = toggleColor
+        knob.Parent = sliderBar
+
+        local value = 0
+        local function updateSlider(newValue)
+            value = math.clamp(newValue, 0, 1)
+            knob.Position = UDim2.new(value, -7, 0.5, -7)
+            if funcOn then
+                pcall(funcOn, value)
+            end
+        end
+
+        knob.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                draggingSlider = true
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        draggingSlider = false
+                    end
+                end)
+            end
+        end)
+
+        UserInputService.InputChanged:Connect(function(input)
+            if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local relative = input.Position.X - sliderBar.AbsolutePosition.X
+                updateSlider(relative / sliderBar.AbsoluteSize.X)
+            end
+        end)
+    else
+        -- Toggle button
+        local toggle = Instance.new("TextButton")
+        toggle.Size = UDim2.new(0, 20, 0, 20)
+        toggle.Position = UDim2.new(1, -25, 1, -25)
+        toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        toggle.BorderSizePixel = 0
+        toggle.Text = ""
+        toggle.Parent = module
+
+        local toggleCorner = Instance.new("UICorner")
+        toggleCorner.CornerRadius = UDim.new(0, 4)
+        toggleCorner.Parent = toggle
+
+        local toggleOn = false
+        local function updateToggle()
+            toggle.BackgroundColor3 = toggleOn and toggleColor or Color3.fromRGB(60, 60, 60)
+        end
+        updateToggle()
+
+        toggle.MouseButton1Click:Connect(function()
+            toggleOn = not toggleOn
+            updateToggle()
+            if toggleOn and funcOn then
+                pcall(funcOn)
+            elseif not toggleOn and funcOff then
+                pcall(funcOff)
+            end
+        end)
+    end
+
+    table.insert(buttons, module)
+    return module
+end
+
+return GUI
