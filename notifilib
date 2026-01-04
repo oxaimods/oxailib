@@ -71,6 +71,19 @@ function NotificationLib.Notify(text, duration)
 	corner.CornerRadius = UDim.new(0, NotificationLib.Settings.CornerRadius)
 	corner.Parent = notif
 
+	local label1 = Instance.new("TextLabel")
+	label1.Size = UDim2.new(1, -10, 1, -10)
+	label1.Position = UDim2.new(0, 5, 0, 0)
+	labe11.BackgroundTransparency = 1
+	label1.TextWrapped = true
+	label1.Text = "Oxai-Client"
+	label1.Font = NotificationLib.Settings.Font
+	label1.TextSize = NotificationLib.Settings.TextSize
+	label1.TextColor3 = NotificationLib.Settings.TextColor
+	label1.TextXAlignment = Enum.TextXAlignment.Center
+	label1.TextYAlignment = Enum.TextYAlignment.Center
+	label1.Parent = notif
+
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(1, -10, 1, -10)
 	label.Position = UDim2.new(0, 5, 0, 5)
