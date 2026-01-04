@@ -1,10 +1,9 @@
---[[
+--[[ 
 	NotificationLib
 	Simple stacking notification library for Roblox
 	
 	Usage:
-	local NotifiLib = require(path.to.NotificationLib)
-	NotifiLib.Notify("Injected!", 6)
+	NotificationLib.Notify("Injected", "Script loaded successfully", 6)
 ]]
 
 local NotificationLib = {}
@@ -27,15 +26,22 @@ end
 
 -- ===== DEFAULT SETTINGS =====
 NotificationLib.Settings = {
-	Width = 220,
-	Height = 75,
+	Width = 240,
+	Height = 90,
 	Spacing = 10,
 	BaseYOffset = -120,
 	SlideTime = 0.4,
-	Font = Enum.Font.GothamBold,
-	TextSize = 20,
+
+	TitleFont = Enum.Font.GothamBold,
+	BodyFont = Enum.Font.Gotham,
+
+	TitleTextSize = 18,
+	BodyTextSize = 16,
+
 	TextColor = Color3.fromRGB(0, 255, 140),
+	SeparatorColor = Color3.fromRGB(60, 60, 60),
 	BackgroundColor = Color3.fromRGB(35, 35, 35),
+
 	CornerRadius = 10,
 }
 
@@ -57,7 +63,7 @@ local function updateStack()
 end
 
 -- ===== PUBLIC API =====
-function NotificationLib.Notify(text, duration)
+function NotificationLib.Notify(title, text, duration)
 	duration = duration or 3
 
 	local notif = Instance.new("Frame")
@@ -71,31 +77,40 @@ function NotificationLib.Notify(text, duration)
 	corner.CornerRadius = UDim.new(0, NotificationLib.Settings.CornerRadius)
 	corner.Parent = notif
 
-	local label1 = Instance.new("TextLabel")
-	label1.Size = UDim2.new(1, -10, 1, -10)
-	label1.Position = UDim2.new(0, 5, 0, 0)
-	labe11.BackgroundTransparency = 1
-	label1.TextWrapped = true
-	label1.Text = "Oxai-Client"
-	label1.Font = NotificationLib.Settings.Font
-	label1.TextSize = NotificationLib.Settings.TextSize
-	label1.TextColor3 = NotificationLib.Settings.TextColor
-	label1.TextXAlignment = Enum.TextXAlignment.Center
-	label1.TextYAlignment = Enum.TextYAlignment.Center
-	label1.Parent = notif
+	-- ===== TITLE =====
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, -10, 0, 24)
+	titleLabel.Position = UDim2.new(0, 5, 0, 5)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = tostring(title)
+	titleLabel.Font = NotificationLib.Settings.TitleFont
+	titleLabel.TextSize = NotificationLib.Settings.TitleTextSize
+	titleLabel.TextColor3 = NotificationLib.Settings.TextColor
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+	titleLabel.Parent = notif
 
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, -10, 1, -10)
-	label.Position = UDim2.new(0, 5, 0, 5)
-	label.BackgroundTransparency = 1
-	label.TextWrapped = true
-	label.Text = tostring(text)
-	label.Font = NotificationLib.Settings.Font
-	label.TextSize = NotificationLib.Settings.TextSize
-	label.TextColor3 = NotificationLib.Settings.TextColor
-	label.TextXAlignment = Enum.TextXAlignment.Center
-	label.TextYAlignment = Enum.TextYAlignment.Center
-	label.Parent = notif
+	-- ===== SEPARATOR LINE =====
+	local separator = Instance.new("Frame")
+	separator.Size = UDim2.new(1, -10, 0, 1)
+	separator.Position = UDim2.new(0, 5, 0, 34)
+	separator.BackgroundColor3 = NotificationLib.Settings.SeparatorColor
+	separator.BorderSizePixel = 0
+	separator.Parent = notif
+
+	-- ===== BODY TEXT =====
+	local bodyLabel = Instance.new("TextLabel")
+	bodyLabel.Size = UDim2.new(1, -10, 1, -45)
+	bodyLabel.Position = UDim2.new(0, 5, 0, 40)
+	bodyLabel.BackgroundTransparency = 1
+	bodyLabel.TextWrapped = true
+	bodyLabel.Text = tostring(text)
+	bodyLabel.Font = NotificationLib.Settings.BodyFont
+	bodyLabel.TextSize = NotificationLib.Settings.BodyTextSize
+	bodyLabel.TextColor3 = NotificationLib.Settings.TextColor
+	bodyLabel.TextXAlignment = Enum.TextXAlignment.Left
+	bodyLabel.TextYAlignment = Enum.TextYAlignment.Center
+	bodyLabel.Parent = notif
 
 	table.insert(ACTIVE_NOTIFS, notif)
 	updateStack()
