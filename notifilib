@@ -34,9 +34,12 @@ NotificationLib.Settings = {
 
 -- ===== THEMES =====
 NotificationLib.Themes = {
-	[1] = { TextColor = Color3.fromRGB(255,255,255), BackgroundColor = Color3.fromRGB(80,80,80), SeparatorColor = Color3.fromRGB(150,150,150) },
-	[2] = { TextColor = Color3.fromRGB(0,0,255), BackgroundColor = Color3.fromRGB(128,0,128), SeparatorColor = Color3.fromRGB(200,200,255) },
-	[3] = { TextColor = Color3.fromRGB(0,0,0), BackgroundColor = Color3.fromRGB(255,255,0), SeparatorColor = Color3.fromRGB(100,100,0) },
+	--midnight theme
+	[1] = { TextColor = Color3.fromRGB(255,255,255), BackgroundColor = Color3.fromRGB(84,51,116), SeparatorColor = Color3.fromRGB(130,74,184) },
+	-- grey theme
+	[2] = { TextColor = Color3.fromRGB(255,255,255), BackgroundColor = Color3.fromRGB(60,60,60), SeparatorColor = Color3.fromRGB(50,50,50) },
+	-- scintilla
+	[3] = { TextColor = Color3.fromRGB(130,74,184), BackgroundColor = Color3.fromRGB(70,70,70), SeparatorColor = Color3.fromRGB(130,74,184) },
 	[4] = { TextColor = Color3.fromRGB(255,0,0), BackgroundColor = Color3.fromRGB(0,0,0), SeparatorColor = Color3.fromRGB(255,100,100) },
 }
 
