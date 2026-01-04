@@ -1,0 +1,118 @@
+-- LocalScript inside StarterPlayerScripts
+local player = game.Players.LocalPlayer
+
+-- Services
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomHUD"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 125)
+mainFrame.Position = UDim2.new(0, 10, 0, 10)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+-- Rounded corners
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(0, 15)
+uicorner.Parent = mainFrame
+
+-- Optional shadow (for style)
+local shadow = Instance.new("UICorner")
+shadow.CornerRadius = UDim.new(0, 15)
+shadow.Parent = mainFrame
+
+-- Player Icon
+local icon = Instance.new("ImageLabel")
+icon.Size = UDim2.new(0, 50, 0, 50)
+icon.Position = UDim2.new(0, 10, 0, 10)
+icon.BackgroundTransparency = 1
+icon.Image = "rbxthumb://type=AvatarHeadShot&id="..player.UserId.."&w=420&h=420"
+icon.Parent = mainFrame
+local iconCorner = Instance.new("UICorner")
+iconCorner.CornerRadius = UDim.new(1, 0)  -- Circle
+iconCorner.Parent = icon
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0.6, -70, 0, 25)
+title.Position = UDim2.new(0, 70, 0, 10)
+title.BackgroundTransparency = 1
+title.Text = "oxai.gg/Rivals"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = mainFrame
+
+-- Subtitle (Welcome, username)
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(0.6, -70, 0, 20)
+subtitle.Position = UDim2.new(0, 70, 0, 35)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "Welcome, " .. player.Name
+subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+subtitle.Font = Enum.Font.SourceSans
+subtitle.TextSize = 14
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.Parent = mainFrame
+
+-- Stats Section
+local stats = Instance.new("Frame")
+stats.Size = UDim2.new(1, -20, 0, 50)
+stats.Position = UDim2.new(0, 10, 0, 70)
+stats.BackgroundTransparency = 1
+stats.Parent = mainFrame
+
+local function createStat(text, yOffset)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 140, 0, 18)
+    label.Position = UDim2.new(0, 0, 0, yOffset)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.SourceSans
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = stats
+end
+
+createStat("v16.7.0", 0)
+createStat("FPS: 127", 18)
+createStat("Ping: 148 ms", 36)
+
+-- Bottom timer
+local timer = Instance.new("TextLabel")
+timer.Size = UDim2.new(1, -20, 0, 15)
+timer.Position = UDim2.new(0, 10, 1, -20)
+timer.BackgroundTransparency = 1
+timer.TextColor3 = Color3.fromRGB(180, 180, 180)
+timer.Font = Enum.Font.SourceSans
+timer.TextSize = 12
+timer.TextXAlignment = Enum.TextXAlignment.Right
+timer.Text = "0h:0m:0s"
+timer.Parent = mainFrame
+
+-- Timer update
+local startTime = tick()
+RunService.RenderStepped:Connect(function()
+    local elapsed = tick() - startTime
+    local h = math.floor(elapsed / 3600)
+    local m = math.floor((elapsed % 3600) / 60)
+    local s = math.floor(elapsed % 60)
+    timer.Text = string.format("%dh:%dm:%ds", h, m, s)
+end)
+
+-- Delete GUI on pressing 0
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Zero then
+        screenGui:Destroy()
+    end
+end)
