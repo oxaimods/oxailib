@@ -110,32 +110,32 @@ RunService.RenderStepped:Connect(function()
     timer.Text = string.format("%dh:%dm:%ds", h, m, s)
 end)
 
--- ===== INSERT KEY TOGGLE ANIMATION =====
+-- Set AnchorPoint so tweening is consistent
+mainFrame.AnchorPoint = Vector2.new(0, 0)
+
+-- Original visible position
+local visiblePos = UDim2.new(0, 10, 0, 10)
+-- Hidden position (slide down off-screen)
+local hiddenPos = UDim2.new(0, 10, 0, -mainFrame.Size.Y.Offset - 10)
+
+mainFrame.Position = visiblePos
+
+-- Insert key toggle
 local hudVisible = true
 UserInputService.InputBegan:Connect(function(input, processed)
     if processed then return end
     if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Insert then
         hudVisible = not hudVisible
         if hudVisible then
-            -- Tween in
             TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 10, 0, 10),
+                Position = visiblePos,
                 BackgroundTransparency = 0
             }):Play()
         else
-            -- Tween out (slide down)
             TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                Position = UDim2.new(0, 10, 0, 150),
+                Position = hiddenPos,
                 BackgroundTransparency = 0.5
             }):Play()
         end
-    end
-end)
-
--- Delete GUI on pressing 0
-UserInputService.InputBegan:Connect(function(input, processed)
-    if processed then return end
-    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Zero then
-        screenGui:Destroy()
     end
 end)
